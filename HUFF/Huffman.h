@@ -17,6 +17,7 @@ public:
 		char symbol; 
 	};
 
+	int arrayCounter = 0; 
 	int freqArray[256];
 
 	int weightArray[256];
@@ -32,6 +33,6 @@ public:
 
 private: 
 	void openFile(string fileName); 
-
+	void printArrays(); 
 };
 
