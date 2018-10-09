@@ -10,16 +10,19 @@ class Huffman
 public:
 	struct huff_node
 	{
-		huff_node* parentChild; 
+		huff_node* parent; 
 		huff_node* rightChild; 
 		huff_node* leftChild; 
 		int weight; 
 		char symbol; 
 	};
 
-	int arrayCounter = 0; 
-	int freqArray[256];
+	huff_node rootNode; 
+	huff_node nodeStorage[2000];
 
+	//use this array to build the tree and stuff
+	huff_node* focus_list[2000]; 
+	int arrayCounter = 0; 
 	int weightArray[256];
 	char symbolArray[256];
 
@@ -33,6 +36,10 @@ public:
 
 private: 
 	void openFile(string fileName); 
-	void printArrays(); 
+	void buildTree(); 
+	void printArrays();
+	void createInitialNodes(); 
+	void createParentNode(huff_node* node1, huff_node* node2); 
+
 };
 
