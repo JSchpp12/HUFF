@@ -75,6 +75,7 @@ void Huffman::openFile(string fileName)
 	}
 	printArrays(); 
 	createInitialNodes(); 
+	buildTree(); 
 
 	cout << "Finished Reading File";
 }
