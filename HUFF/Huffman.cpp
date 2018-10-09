@@ -5,13 +5,13 @@
 //public methods 
 Huffman::Huffman()
 {
-	/*
-	for (int i = 0; i < 256; i++)
+	
+	for (int i = 0; i <= 256; i++)
 	{
 		weightArray[i] = 0; 
-		symbolArray[i] = NULL; 
+		//symbolArray[i] = NULL; 
 	}
-	*/ 
+	 
 }
 
 
@@ -77,7 +77,7 @@ void Huffman::openFile(string fileName)
 	createInitialNodes(); 
 	buildTree(); 
 
-	cout << "Finished Reading File";
+	cout << "Finished Building Tree";
 }
 
 void Huffman::printArrays()
@@ -104,31 +104,48 @@ void Huffman::createInitialNodes()
 
 void Huffman::buildTree()
 {
+	bool complete; 
+	int prevFound; 
 	int index1, index2; 
 	int smallestFound = 0;
+	int smallestFound2 = 0; 
 
 	//need to find the two smallest values in the focus array
-	for (int i = 0; i <= arrayCounter; i++)
+	for (int m = 0; m < 1; m++)
 	{
-		if (smallestFound == 0)
+		smallestFound = focus_list[0]->weight;
+		smallestFound2 = focus_list[0]->weight; 
+		index1 = 0; 
+
+		for (int i = 0; i <= arrayCounter; i++)
 		{
-			smallestFound = focus_list[i]->weight;
-			index1 = i; 
-		}
-		else if (focus_list[i]->weight < smallestFound)
-		{
-			smallestFound = focus_list[i]->weight; 
-			if (index1 != 0)
+			if (m == 0)
 			{
-				index2 = index1; 
+				if ((focus_list[i]->weight < smallestFound) && (focus_list[i]->weight != 0))
+				{
+					
+					if (index1 != 0)
+					{
+						//first time running 
+						index2 = index1;
+					}
+					
+					index1 = i;
+					smallestFound = focus_list[i]->weight;
+				}
 			}
-			index1 = i; 
 		}
 	}
-	cout << "lowest values : " << focus_list[index1]->symbol << " : " << focus_list[index1]->weight; 
+
+	//found the lowest stuff
+	cout << "lowest values : " << focus_list[index1]->symbol << " : " << focus_list[index1]->weight << "\n"; 
+	cout << "lowest value 2 : " << focus_list[index2]->symbol << " : " << focus_list[index2]->weight << "\n"; 
 }
 
 void Huffman::createParentNode(huff_node* node1, huff_node* node2)
 {
-
+	huff_node newNode; 
+	newNode.leftChild = node1; 
+	newNode.rightChild = node2; 
+	newNode.weight = node1->weight + node2->weight;
 }

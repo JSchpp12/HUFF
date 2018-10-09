@@ -40,6 +40,6 @@ private:
 	void printArrays();
 	void createInitialNodes(); 
 	void createParentNode(huff_node* node1, huff_node* node2); 
-
+	huff_node* findNextLowest(int lowestVal); 
 };
 
