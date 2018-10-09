@@ -123,29 +123,40 @@ void Huffman::buildTree()
 			{
 				if ((focus_list[i]->weight < smallestFound) && (focus_list[i]->weight != 0))
 				{
-					
 					if (index1 != 0)
 					{
-						//first time running 
+						//shift up found value
 						index2 = index1;
 					}
-					
 					index1 = i;
 					smallestFound = focus_list[i]->weight;
 				}
 			}
 		}
 	}
+	createParentNode(index1, index2); 
 
 	//found the lowest stuff
 	cout << "lowest values : " << focus_list[index1]->symbol << " : " << focus_list[index1]->weight << "\n"; 
 	cout << "lowest value 2 : " << focus_list[index2]->symbol << " : " << focus_list[index2]->weight << "\n"; 
 }
 
-void Huffman::createParentNode(huff_node* node1, huff_node* node2)
+void Huffman::createParentNode(int index1, int index2)
 {
+	huff_node* node1;
+	huff_node*node2; 
 	huff_node newNode; 
+
+	node1 = focus_list[index1];
+	node2 = focus_list[index2];
 	newNode.leftChild = node1; 
 	newNode.rightChild = node2; 
 	newNode.weight = node1->weight + node2->weight;
+	nodeStorage[arrayCounter] = newNode; 
+	//need to trim list of the two values I am reaplacing 
+}
+
+void Huffman::trimFocus()
+{
+
 }

@@ -39,7 +39,8 @@ private:
 	void buildTree(); 
 	void printArrays();
 	void createInitialNodes(); 
-	void createParentNode(huff_node* node1, huff_node* node2); 
+	void createParentNode(int index1, int index2); 
 	huff_node* findNextLowest(int lowestVal); 
+	void trimFocus(); 
 };
 
