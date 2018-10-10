@@ -17,12 +17,14 @@ public:
 		char symbol; 
 	};
 
-	huff_node rootNode; 
+	huff_node* rootNode; 
 	huff_node nodeStorage[2000];
 
 	//use this array to build the tree and stuff
 	huff_node* focus_list[2000]; 
+	int focus_listCounter = 0; 
 	int arrayCounter = 0; 
+	int numOfParentsCreated = 0; 
 	int weightArray[256];
 	char symbolArray[256];
 
@@ -38,9 +40,10 @@ private:
 	void openFile(string fileName); 
 	void buildTree(); 
 	void printArrays();
+	void printFOCUS(); 
 	void createInitialNodes(); 
 	void createParentNode(int index1, int index2); 
 	huff_node* findNextLowest(int lowestVal); 
-	void trimFocus(); 
+	void trimFocus(int empty_index); 
 };
 
