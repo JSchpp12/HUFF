@@ -92,7 +92,7 @@ void Huffman::printArrays()
 void Huffman::createInitialNodes()
 {
 	//need to create inital nodes for all items in arrays so that tree can be built
-	for (int i = 0; i <= arrayCounter; i++)
+	for (int i = 0; i < arrayCounter; i++)
 	{
 		huff_node newNode; 
 		newNode.symbol = symbolArray[i]; 
@@ -113,7 +113,7 @@ void Huffman::buildTree()
 	int maxFound = 0; 
 	int smallestFound = 0;
 	int smallestFound2 = 0; 
-	while (focus_listCounter > 0)
+	while (focus_listCounter > 1)
 	{
 		//need to find the two smallest values in the focus array
 
@@ -149,6 +149,19 @@ void Huffman::buildTree()
 					smallestFound = focus_list[i]->weight;
 				}
 
+			}
+			if (index1 == index2)
+			{
+				smallestFound2 = 100000000; 
+				//both values are the same, need to look for one that is larger than the other but still the smallest
+				for (int m = 0; m < focus_listCounter; m++)
+				{
+					if ((focus_list[m]->weight <= smallestFound2) && (focus_list[m]->weight > smallestFound) && (focus_list[m]->weight != 0))
+					{
+						smallestFound2 = focus_list[m]->weight; 
+						index2 = m; 
+					}
+				}
 			}
 		
 		cout << "lowest values : " << focus_list[index1]->symbol << " : " << focus_list[index1]->weight << "\n";
