@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 
+
 using namespace std; 
 
 class Huffman
@@ -22,17 +23,26 @@ public:
 	huff_node nodeStorage[2000];
 
 	//use this to store the binary representation of each character in the encoding table 
-	string binaryRepList[250]; 
+	string binaryRepList[256]; 
 
 	//use this array to build the tree and stuff
 	huff_node* focus_list[2000]; 
+
+	huff_node* leafNodes[256]; 
+
+	int symbolRep_weights[255]; 
+
+	//store tree building data here
+	char treeBuilder[510]; 
+	int treeBuilder_counter = 0; 
+
 	int focus_listCounter = 0; 
 	int arrayCounter = 0;
 	int numOfCharacters = 0; 
 	int binaryArrayCounter = 0; 
 	int numOfParentsCreated = 0; 
 	int weightArray[256];
-	char symbolArray[256];
+	unsigned char symbolArray[256];
 
 	Huffman();
 	~Huffman();
@@ -56,7 +66,9 @@ private:
 	void buildEncodingTable();
 	void traverseForChar(huff_node* currentNode, char focus);
 	void printBinaryTable(); 
-	void findPath(huff_node* leaf_node); 
+	string findPath(huff_node* leaf_node); 
 	void _traverse(huff_node * in_node); 
+	void write_incodedInput(string inputFile, string outputFile);
+	void writeTreeBuildingDataToFile(string outputFile); 
 };
 
