@@ -79,11 +79,14 @@ private:
 	huff_node* findNextLowest(int lowestVal); 
 	void trimFocus(int empty_index); 
 	void buildEncodingTable();
-	void traverseForChar(huff_node* currentNode, char focus);
 	void printBinaryTable(); 
 	string findPath(huff_node* leaf_node); 
 	void _traverse(huff_node * in_node); 
 	void write_incodedInput(string inputFile, string outputFile);
 	void writeTreeBuildingDataToFile(string outputFile); 
+	void readFromFile(string fileName); 
+
+	//bass individual bits to this handler to write out to file 
+	void writeHandler(int input, ofstream & outFile);
 };
 

@@ -36,7 +36,8 @@ void Huffman::EncodeFile(string inputFile, string OutputFile)
 	this->buildEncodingTable(); 
 	this->printBinaryTable(); 
 	this->writeTreeBuildingDataToFile(OutputFile);
-	this->write_incodedInput(inputFile, OutputFile); 
+	this->write_incodedInput(inputFile, "OUTPUT_TEST.TXT");
+	this->readFromFile("OUTPUT_TEST.TXT"); 
 	return; 
 }
 
@@ -308,7 +309,8 @@ void Huffman::write_incodedInput(string inputFile, string outputFile)
 	//need padding bits if compiled  message is not a multiple of 8
 	int numOfBytesWritten = 0;
 
-	unsigned char c, holder;
+	int index; 
+	unsigned char c, temp; 
 	int intOfChar;
 	int binaryRepresentative;
 	int calculatedPowerOf2;
@@ -323,29 +325,55 @@ void Huffman::write_incodedInput(string inputFile, string outputFile)
 	inStream.open(inputFile, ios::in);
 
 	//open the output file as a binary output 
-	ifstream outStream;
+	ofstream outStream;
 	outStream.open(outputFile, ios::out | ios::binary);
 
 	while (inStream >> noskipws >> c)
 	{
+
+		intOfChar = c;
+		binaryString = binaryRepList[intOfChar]; 
+
+		for (int i = 0; i < binaryString.size(); i++)
+		{
+			temp = binaryString[i];
+			if (temp == '1')
+			{
+				writeHandler(1, outStream); 
+			}
+			else if (temp == '0')
+			{
+				writeHandler(0, outStream); 
+			}
+		}
+	}
+
+	/*
+	while (inStream >> noskipws >> c)
+	{
+		index = 0; 
 		int binaryConversion = 0;
 		lengthOfString = 0;
 		unsigned char temp;
-		stack<unsigned char> container;
+		//stack<unsigned char> container;
 
 		//cout << c << "\n";
 		intOfChar = c;
 		binaryString = binaryRepList[intOfChar];
 
 		//need to convert the binary string into an int so that it can br written to the file 
-		for (std::string::size_type i = binaryString.size(); i >= 0; i--)
+		//std::string::size_type 
+
+		
+		for (int i = binaryString.size() - 1;  i >= 0; i--)
 		{
 			temp = binaryString[i];
 			if (temp == '1')
 			{
-				if (lengthOfString < 9)
+				if (index < 9)
 				{
-					binaryConversion = binaryConversion + powersOf2[lengthOfString];
+					
+					binaryConversion = binaryConversion + powersOf2[index];
 				}
 				else
 				{
@@ -353,7 +381,7 @@ void Huffman::write_incodedInput(string inputFile, string outputFile)
 				//need to calculate 
 					if (temp = '1')
 					{
-						for (int n = 0; n <= lengthOfString; n++)
+						for (int n = 0; n <= index; n++)
 						{
 							if (n == 0)
 							{
@@ -370,9 +398,46 @@ void Huffman::write_incodedInput(string inputFile, string outputFile)
 					}
 				}
 				lengthOfString++;
-				std::cout << binaryString << " : " << binaryConversion << "\n";
+				
 			}
+			
+			index++; 
 		}
+		std::cout << binaryString << " : " << binaryConversion << "\n";
+		outStream.write(reinterpret_cast<const char *>(&binaryConversion), sizeof(int)); 
+	}
+	*/ 
+}
+
+void Huffman::writeHandler(int input, ofstream &outStream)
+{
+	//mark where in the block currently at 
+	static int position = 0; 
+
+	//the actual block to be written
+	static unsigned char block = '\0'; 
+
+	if (input == 1)
+	{
+		block = block | (input << (7 - position)); 
+	}
+	else if (input == 0)
+	{
+		block = block & static_cast<unsigned char> (255 - (1 << (7 - position))); 
+		position++; 
+		if ((position / 8) == 1)
+		{
+			outStream.put(block); 
+			block = '\0'; 
+
+		}
+	}
+	else
+	{
+		//this should be end of file
+
+		//need to add padding if not full *******************************************************
+		outStream.put(block); 
 	}
 }
 
@@ -396,4 +461,22 @@ void Huffman::writeTreeBuildingDataToFile(string outputFile)
 
 	//close the file 
 	outStream.close();
+}
+
+void Huffman::readFromFile(string fileName)
+{
+	cout << "reading file \n"; 
+
+	ifstream inStream; 
+	inStream.open(fileName, ios::in); 
+	int number; 
+
+	inStream.read((char*)&number, sizeof(number)); 
+	cout << number; 
+	/*
+	while (inStream >> noskipws >> c)
+	{
+		cout << c << "\n";
+	}
+	*/
 }
