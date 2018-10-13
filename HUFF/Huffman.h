@@ -29,7 +29,6 @@ public:
 	huff_node* rootNode; 
 	huff_node nodeStorage[2000];
 
-
 	//use this to store the binary representation of each character in the encoding table 
 	string binaryRepList[256]; 
 
@@ -56,6 +55,7 @@ public:
 	int numOfParentsCreated = 0; 
 	int weightArray[256];
 	unsigned char symbolArray[256];
+	string paddingBits;
 
 	Huffman();
 	~Huffman();
@@ -85,8 +85,10 @@ private:
 	void write_incodedInput(string inputFile, string outputFile);
 	void writeTreeBuildingDataToFile(string outputFile); 
 	void readFromFile(string fileName); 
-
+	void findPaddingBits(int numBitsNeeded, int currentLevel, huff_node* currentNode, string bits); 
 	//bass individual bits to this handler to write out to file 
 	void writeHandler(int input, ofstream & outFile);
+	string calculateBits(int length); 
+	void foundBits(string bitString); 
 };
 

@@ -323,14 +323,14 @@ void Huffman::write_incodedInput(string inputFile, string outputFile)
 	//create the stream and open the file in read mode
 	ifstream inStream;
 	inStream.open(inputFile, ios::in);
-
+		
 	//open the output file as a binary output 
 	ofstream outStream;
-	outStream.open(outputFile, ios::out | ios::binary);
+	outStream.open(outputFile, ios::app | ios::binary);
 
 	while (inStream >> noskipws >> c)
 	{
-
+		cout << c << " : " << binaryRepList[c] << "\n";
 		intOfChar = c;
 		binaryString = binaryRepList[intOfChar]; 
 
@@ -347,66 +347,7 @@ void Huffman::write_incodedInput(string inputFile, string outputFile)
 			}
 		}
 	}
-
-	/*
-	while (inStream >> noskipws >> c)
-	{
-		index = 0; 
-		int binaryConversion = 0;
-		lengthOfString = 0;
-		unsigned char temp;
-		//stack<unsigned char> container;
-
-		//cout << c << "\n";
-		intOfChar = c;
-		binaryString = binaryRepList[intOfChar];
-
-		//need to convert the binary string into an int so that it can br written to the file 
-		//std::string::size_type 
-
-		
-		for (int i = binaryString.size() - 1;  i >= 0; i--)
-		{
-			temp = binaryString[i];
-			if (temp == '1')
-			{
-				if (index < 9)
-				{
-					
-					binaryConversion = binaryConversion + powersOf2[index];
-				}
-				else
-				{
-					//the string is longer than the first pre-calculated powers of 2 
-				//need to calculate 
-					if (temp = '1')
-					{
-						for (int n = 0; n <= index; n++)
-						{
-							if (n == 0)
-							{
-								calculatedPowerOf2 = 1;
-							}
-							else
-							{
-								calculatedPowerOf2 = calculatedPowerOf2 * 2;
-							}
-						}
-
-						//add the calculated power of 2 to the overall conversion 
-						binaryConversion = binaryConversion + calculatedPowerOf2;
-					}
-				}
-				lengthOfString++;
-				
-			}
-			
-			index++; 
-		}
-		std::cout << binaryString << " : " << binaryConversion << "\n";
-		outStream.write(reinterpret_cast<const char *>(&binaryConversion), sizeof(int)); 
-	}
-	*/ 
+	writeHandler(2, outStream); 
 }
 
 void Huffman::writeHandler(int input, ofstream &outStream)
@@ -417,18 +358,34 @@ void Huffman::writeHandler(int input, ofstream &outStream)
 	//the actual block to be written
 	static unsigned char block = '\0'; 
 
+	string paddingBits; 
+	int numOfBits; 
+	unsigned char temp; 
+
 	if (input == 1)
 	{
-		block = block | (input << (7 - position)); 
+		block = block | (1 << (7 - position)); 
+		position++; 
+		if ((position % 8) == 0)
+		{
+			cout << "writing block " << block << " \n";
+			outStream.put(block);
+			block = '\0';
+			position = 0; 
+
+		}
 	}
 	else if (input == 0)
 	{
-		block = block & static_cast<unsigned char> (255 - (1 << (7 - position))); 
+		//block = block & static_cast<unsigned char> (255 - (1 << (7 - position))); 
+		block = block & ~(1 << (7 - position)); 
 		position++; 
-		if ((position / 8) == 1)
+		if ((position%8) == 0)
 		{
+			cout << "writing block " << block << " \n"; 
 			outStream.put(block); 
 			block = '\0'; 
+			position = 0; 
 
 		}
 	}
@@ -437,8 +394,77 @@ void Huffman::writeHandler(int input, ofstream &outStream)
 		//this should be end of file
 
 		//need to add padding if not full *******************************************************
+		if ((position%8) != 0)
+		{
+			//find padding bits 
+			numOfBits = 8 - position; 
+			findPaddingBits(numOfBits, 0, rootNode, ""); 
+			if (paddingBits != "")
+			{
+				//the padding bits were successfully set 
+
+				for (int i = 0; i < paddingBits.size(); i++)
+				{
+					temp = paddingBits[i];
+					if (temp == '1')
+					{
+						block = block | (1 << (7 - position));
+						position++;
+					}
+					else if (temp == '0')
+					{
+						block = block & ~(1 << (7 - position));
+						position++;
+					}
+				}
+				outStream.put(block); 
+			}
+			else
+			{
+				//padding bits were not set correctly 
+
+			}
+		}
 		outStream.put(block); 
 	}
+	
+}
+
+void Huffman::findPaddingBits(int numBitsNeeded, int currentLevel, huff_node* currentNode, string bits)
+{
+	int level = 0; 
+	string paddingBits; 
+	bool found = false; 
+
+	//THIS NEEEDS WORKED ON 
+
+	if (currentNode->symbol == -52)
+	{
+		if (currentLevel != numBitsNeeded)
+		{
+			currentLevel++;
+			bits = bits + "0";
+			findPaddingBits(numBitsNeeded, currentLevel, currentNode->leftChild, bits);
+			//cout << in_node->key << " " << in_node->counter << "\n";
+			bits = bits + "1";
+			findPaddingBits(numBitsNeeded, currentLevel, currentNode->rightChild, bits);
+		}
+		else
+		{
+			//set the global string 
+			foundBits(bits); 
+		}
+	}
+	else
+	{
+		return;
+	}
+
+}
+
+void Huffman::foundBits(string binaryString)
+{
+	paddingBits = binaryString; 
 }
 
 void Huffman::writeTreeBuildingDataToFile(string outputFile)
