@@ -70,8 +70,7 @@ public:
 private: 
 	void createParentOfZeroes(huff_node* node1, huff_node* node2, int lowerIndex); 
 	void openFile(string fileName); 
-	void buildTreeOfNonZeros(); 
-	void buildTreeOfZeros(); 
+	void buildTree(); 
 	void printArrays();
 	void printFOCUS(); 
 	void createInitialNodes(); 
@@ -88,5 +87,7 @@ private:
 	string findPaddingBits(int numBitsNeeded); 
 	//bass individual bits to this handler to write out to file 
 	void writeHandler(int input, ofstream & outFile);
+	void readTreeBuildingData(string inputFile); 
+
 };
 

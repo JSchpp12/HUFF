@@ -32,7 +32,7 @@ void Huffman::EncodeFile(string inputFile, string OutputFile)
 {
 	//this will build a tree based on input file and write tree building data and compressed stream to outputFile
 	this->openFile(inputFile);
-	this->buildTreeOfNonZeros(); 
+	this->buildTree(); 
 	this->buildEncodingTable(); 
 	this->printBinaryTable(); 
 	this->writeTreeBuildingDataToFile("OUTPUT_TEST.TXT");
@@ -40,6 +40,12 @@ void Huffman::EncodeFile(string inputFile, string OutputFile)
 	this->readFromFile("OUTPUT_TEST.TXT"); 
 }
 
+void Huffman::MakeTreeBuilder(string inputFile, string outputFile)
+{
+	this->openFile(inputFile); 
+	this->buildTree(); 
+	this->writeTreeBuildingDataToFile(); 
+}
 
 //private methods 
 
@@ -108,7 +114,7 @@ void Huffman::createInitialNodes()
 	focus_listCounter = 256;
 }
 
-void Huffman::buildTreeOfNonZeros()
+void Huffman::buildTree()
 {
 	bool complete; 
 	int prevFound; 
@@ -372,6 +378,7 @@ void Huffman::writeHandler(int input, ofstream &outStream)
 	}
 	else if (input == 0)
 	{
+		//set the next bit as 0 
 		block = block & ~(1 << (7 - position)); 
 		position++; 
 		if ((position%8) == 0)
@@ -425,8 +432,6 @@ string Huffman::findPaddingBits(int numBitsNeeded)
 
 	//start at the root 
 	currentNode = rootNode;
-	
-	//THIS NEEEDS WORKED ON 
 
 	//need to find a path that does not lead to a leaf 
 	while (level != numBitsNeeded)
@@ -485,4 +490,26 @@ void Huffman::readFromFile(string fileName)
 
 	inStream.read((char*)&number, sizeof(number)); 
 	cout << number; 
+}
+
+void Huffman::readTreeBuildingData(string inputFile)
+{
+	//read the tree building data from the file
+	//build the tree from the data 
+	ifstream inStream; 
+	inStream.open(inputFile, ios::in); 
+
+	int numOfBytesRead = 0; 
+	int num1, num2; 
+
+	while (numOfBytesRead > 510)
+	{
+		//read the first two numbers from the file 
+		inStream.read((char*)&num1, 1);
+		inStream.read((char*)&num2, 1); 
+
+		//make a parent node for the read children 
+		createParentNode(num1, num2); 
+	}
+	rootNode = focus_list[0]; 
 }
