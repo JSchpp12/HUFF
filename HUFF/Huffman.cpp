@@ -35,10 +35,9 @@ void Huffman::EncodeFile(string inputFile, string OutputFile)
 	this->buildTreeOfNonZeros(); 
 	this->buildEncodingTable(); 
 	this->printBinaryTable(); 
-	this->writeTreeBuildingDataToFile(OutputFile);
+	this->writeTreeBuildingDataToFile("OUTPUT_TEST.TXT");
 	this->write_incodedInput(inputFile, "OUTPUT_TEST.TXT");
 	this->readFromFile("OUTPUT_TEST.TXT"); 
-	return; 
 }
 
 
@@ -210,12 +209,13 @@ void Huffman::createParentNode(int index1, int index2)
 	weight2 = node2->weight; 
 	newNode.weight = weight1 + weight2; 
 	nodeStorage[arrayCounter] = newNode; 
+
 	//need to trim list of the two values I am reaplacing 
 	//index 1 will contain the new node, index 2 will be empty hole 
 	//need to fill the hole 
 	focus_list[index1] = &nodeStorage[arrayCounter];
 	focus_list[index2] = nullptr; 
-	//focus_list[index2] = nullptr; 
+
 	//set new node as parent to the 2 target nodes 
 	node1->parent = &nodeStorage[arrayCounter]; 
 	node2->parent = &nodeStorage[arrayCounter];
@@ -235,8 +235,6 @@ void Huffman::trimFocus(int empty_index)
 	{
 
 		focus_list[a] = focus_list[a + 1];
-		//tempHolder = focus_list[a+1]; 
-		//focus_list[a] = focus_list[a + 1]; 
 		a++;
 	}
 	focus_list[focus_listCounter] = nullptr;
@@ -252,8 +250,6 @@ void Huffman::buildEncodingTable()
 	//left child = 2
 	for (int i = 0; i < 256; i++)
 	{
-		//binaryRep[i] = traverseForChar(symbolArray[i], "", rootNode);
-		//traverseForChar(rootNode, symbolArray[i]);
 		binaryRepList[i] = findPath(leafNodes[i]); 
 	}
 
@@ -280,7 +276,6 @@ string Huffman::findPath(huff_node* leafNode)
 		currentNode = temp; 
 	}
 	return constructedPath; 
-	//foundBinaryPath(constructedPath); 
 }
 
 void Huffman::foundBinaryPath(string binaryPath)
@@ -326,7 +321,7 @@ void Huffman::write_incodedInput(string inputFile, string outputFile)
 		
 	//open the output file as a binary output 
 	ofstream outStream;
-	outStream.open(outputFile, ios::app | ios::binary);
+	outStream.open(outputFile, ios::out | ios::app | ios::binary);
 
 	while (inStream >> noskipws >> c)
 	{
@@ -377,7 +372,6 @@ void Huffman::writeHandler(int input, ofstream &outStream)
 	}
 	else if (input == 0)
 	{
-		//block = block & static_cast<unsigned char> (255 - (1 << (7 - position))); 
 		block = block & ~(1 << (7 - position)); 
 		position++; 
 		if ((position%8) == 0)
@@ -393,16 +387,14 @@ void Huffman::writeHandler(int input, ofstream &outStream)
 	{
 		//this should be end of file
 
-		//need to add padding if not full *******************************************************
+		//need to add padding if not full
 		if ((position%8) != 0)
 		{
 			//find padding bits 
 			numOfBits = 8 - position; 
-			findPaddingBits(numOfBits, 0, rootNode, ""); 
-			if (paddingBits != "")
+			string padding = findPaddingBits(numOfBits); 
+			if (padding != "")
 			{
-				//the padding bits were successfully set 
-
 				for (int i = 0; i < paddingBits.size(); i++)
 				{
 					temp = paddingBits[i];
@@ -419,52 +411,46 @@ void Huffman::writeHandler(int input, ofstream &outStream)
 				}
 				outStream.put(block); 
 			}
-			else
-			{
-				//padding bits were not set correctly 
-
-			}
 		}
 		outStream.put(block); 
 	}
-	
 }
 
-void Huffman::findPaddingBits(int numBitsNeeded, int currentLevel, huff_node* currentNode, string bits)
+string Huffman::findPaddingBits(int numBitsNeeded)
 {
 	int level = 0; 
 	string paddingBits; 
 	bool found = false; 
+	huff_node* currentNode;
 
+	//start at the root 
+	currentNode = rootNode;
+	
 	//THIS NEEEDS WORKED ON 
 
-	if (currentNode->symbol == -52)
+	//need to find a path that does not lead to a leaf 
+	while (level != numBitsNeeded)
 	{
-		if (currentLevel != numBitsNeeded)
+		if (currentNode->leftChild != nullptr)
 		{
-			currentLevel++;
-			bits = bits + "0";
-			findPaddingBits(numBitsNeeded, currentLevel, currentNode->leftChild, bits);
-			//cout << in_node->key << " " << in_node->counter << "\n";
-			bits = bits + "1";
-			findPaddingBits(numBitsNeeded, currentLevel, currentNode->rightChild, bits);
+			paddingBits = paddingBits + "0"; 
+			currentNode = currentNode->leftChild; 
+			level++; 
+		}
+		else if (currentNode->rightChild != nullptr)
+		{
+			paddingBits = paddingBits + "1"; 
+			currentNode = currentNode->rightChild; 
+			level++; 
 		}
 		else
 		{
-			//set the global string 
-			foundBits(bits); 
+			currentNode = currentNode->parent; 
+			currentNode = currentNode->rightChild; 
+			paddingBits = paddingBits + "1"; 
 		}
 	}
-	else
-	{
-		return;
-	}
-
-}
-
-void Huffman::foundBits(string binaryString)
-{
-	paddingBits = binaryString; 
+	return paddingBits; 
 }
 
 void Huffman::writeTreeBuildingDataToFile(string outputFile)
@@ -499,10 +485,4 @@ void Huffman::readFromFile(string fileName)
 
 	inStream.read((char*)&number, sizeof(number)); 
 	cout << number; 
-	/*
-	while (inStream >> noskipws >> c)
-	{
-		cout << c << "\n";
-	}
-	*/
 }

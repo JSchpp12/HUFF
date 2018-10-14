@@ -85,10 +85,8 @@ private:
 	void write_incodedInput(string inputFile, string outputFile);
 	void writeTreeBuildingDataToFile(string outputFile); 
 	void readFromFile(string fileName); 
-	void findPaddingBits(int numBitsNeeded, int currentLevel, huff_node* currentNode, string bits); 
+	string findPaddingBits(int numBitsNeeded); 
 	//bass individual bits to this handler to write out to file 
 	void writeHandler(int input, ofstream & outFile);
-	string calculateBits(int length); 
-	void foundBits(string bitString); 
 };
 
