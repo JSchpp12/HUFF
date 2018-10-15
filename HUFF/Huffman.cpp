@@ -35,16 +35,35 @@ void Huffman::EncodeFile(string inputFile, string OutputFile)
 	this->buildTree(); 
 	this->buildEncodingTable(); 
 	this->printBinaryTable(); 
-	this->writeTreeBuildingDataToFile("OUTPUT_TEST.TXT");
-	this->write_incodedInput(inputFile, "OUTPUT_TEST.TXT");
-	this->readFromFile("OUTPUT_TEST.TXT"); 
+	this->writeTreeBuildingDataToFile(OutputFile);
+	this->write_incodedInput(inputFile, OutputFile);
+	this->readFromFile(OutputFile); 
 }
 
 void Huffman::MakeTreeBuilder(string inputFile, string outputFile)
 {
+	//generate tree building data from input file and write out to file 
 	this->openFile(inputFile); 
 	this->buildTree(); 
-	this->writeTreeBuildingDataToFile(); 
+	this->writeTreeBuildingDataToFile(outputFile); 
+}
+
+void Huffman::EncodeFileWithTree(string treeBuildingFile, string targetFile, string outputFile)
+{
+	//treeBuildingFile - should contain the target tree building information
+	//targetFile - should be the file that is being encoded with the tree building information
+
+	//take an exsisting tree and encode a file using that 
+	//need to start by building tree from tree building data 
+	this->readTreeBuildingData(treeBuildingFile); 
+	this->writeTreeBuildingDataToFile(outputFile); 
+	this->write_incodedInput(targetFile, outputFile);
+
+}
+
+void Huffman::DisplayHelp()
+{
+
 }
 
 //private methods 
@@ -71,11 +90,6 @@ void Huffman::openFile(string fileName)
 	numTimes++; 
 	printArrays(); 
 	createInitialNodes();
-
-	//cout << "Building Tree"; 
-	//buildTree(); 
-	//writeTreeBuildingDataToFile("OUTPUT_TEST.TXT"); 
-	//cout << "Finished Building Tree";
 }
 
 void Huffman::printArrays()
@@ -159,11 +173,6 @@ void Huffman::buildTree()
 				}
 			}
 		}
-		//if (focus_list[index1]->weight != 0)
-		//{
-			std::cout << "lowest values : " << focus_list[index1]->symbol << " : " << focus_list[index1]->weight << "index :" << index1 << "\n";
-			std::cout << "lowest value 2 : " << focus_list[index2]->symbol << " : " << focus_list[index2]->weight << "index : " << index2 << "\n";
-		//}
 		treeBuilder[treeBuilder_counter] = index1;
 		treeBuilder_counter++;
 		treeBuilder[treeBuilder_counter] = index2;
@@ -172,19 +181,12 @@ void Huffman::buildTree()
 		createParentNode(index1, index2);
 
 		//found the lowest stuff
-		//cout << "UPDATED LIST --------------------------------------------------\n"; 
 	}
 	printFOCUS(); 
+
 	//the last element in the focus list should be the root node
 	rootNode = focus_list[0]; 
-	rootNode->parent = nullptr; 
-	//cout << "COMPLETE !!!!!" << "\n"; 
-	//cout << "rootNode weight " << rootNode->weight;
-	//cout << "NUM : " << numOfCharacters << "\n"; 
-
-	//_traverse(rootNode);	
-	//buildEncodingTable(); 
-	//printBinaryTable(); 
+	rootNode->parent = nullptr;  
 } 
 
 void Huffman::printFOCUS() 
@@ -331,7 +333,7 @@ void Huffman::write_incodedInput(string inputFile, string outputFile)
 
 	while (inStream >> noskipws >> c)
 	{
-		cout << c << " : " << binaryRepList[c] << "\n";
+		//cout << c << " : " << binaryRepList[c] << "\n";
 		intOfChar = c;
 		binaryString = binaryRepList[intOfChar]; 
 
@@ -369,7 +371,7 @@ void Huffman::writeHandler(int input, ofstream &outStream)
 		position++; 
 		if ((position % 8) == 0)
 		{
-			cout << "writing block " << block << " \n";
+			//cout << "writing block " << block << " \n";
 			outStream.put(block);
 			block = '\0';
 			position = 0; 
@@ -383,7 +385,7 @@ void Huffman::writeHandler(int input, ofstream &outStream)
 		position++; 
 		if ((position%8) == 0)
 		{
-			cout << "writing block " << block << " \n"; 
+			//cout << "writing block " << block << " \n"; 
 			outStream.put(block); 
 			block = '\0'; 
 			position = 0; 
@@ -502,6 +504,9 @@ void Huffman::readTreeBuildingData(string inputFile)
 	int numOfBytesRead = 0; 
 	int num1, num2; 
 
+	//build initial nodes first with the characters and 0 weights -> populate focus list 
+	createInitialNodes(); 
+
 	while (numOfBytesRead > 510)
 	{
 		//read the first two numbers from the file 
@@ -510,6 +515,7 @@ void Huffman::readTreeBuildingData(string inputFile)
 
 		//make a parent node for the read children 
 		createParentNode(num1, num2); 
+		numOfBytesRead = numOfBytesRead + 2; 
 	}
 	rootNode = focus_list[0]; 
 }

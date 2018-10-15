@@ -35,12 +35,7 @@ public:
 	//use this array to build the tree and stuff
 	huff_node* focus_list[2000]; 
 
-	huff_node* leafNodes[256]; 
-
-	//store the single 0s that still need to be matched here
-	huff_node* singleZeroes[256]; 
-	//going to store the matched symbols that have 0 weight here 
-	huff_node* matchedZeroes[256];  
+	huff_node* leafNodes[256];  
 
 	int symbolRep_weights[255]; 
 
@@ -62,13 +57,12 @@ public:
 	void MakeTreeBuilder(string inputFile, string OutputFile); 
 	void EncodeFile(string inputFile, string OutputFile); 
 	void DecodeFile(string inputFile, string OutputFile); 
-	void EncodeFileWithTree(string inputFile, string OutputFile); 
+	void EncodeFileWithTree(string treeBuildingFile, string targetFile, string outputFile); 
 	void DisplayHelp();
 	void foundBinaryPath(string binaryPath); 
 	
 
 private: 
-	void createParentOfZeroes(huff_node* node1, huff_node* node2, int lowerIndex); 
 	void openFile(string fileName); 
 	void buildTree(); 
 	void printArrays();
