@@ -40,7 +40,7 @@ public:
 	int symbolRep_weights[255]; 
 
 	//store tree building data here
-	char treeBuilder[510]; 
+	int treeBuilder[510]; 
 	int treeBuilder_counter = 0; 
 
 	int focus_listCounter = 0; 
@@ -82,6 +82,7 @@ private:
 	//bass individual bits to this handler to write out to file 
 	void writeHandler(int input, ofstream & outFile);
 	void readTreeBuildingData(string inputFile); 
+	void decodeFile(string inputFile, string outputFile); 
 
 };
 
