@@ -40,8 +40,8 @@ void Huffman::EncodeFile(string inputFile, string OutputFile)
 	this->buildEncodingTable(); 
 	this->printBinaryTable(); 
 	this->writeTreeBuildingDataToFile(OutputFile);
-	//this->write_incodedInput(inputFile, OutputFile);
-	this->readFromFile(OutputFile); 
+	this->write_incodedInput(inputFile, OutputFile);
+	//this->readFromFile(OutputFile); 
 }
 
 void Huffman::MakeTreeBuilder(string inputFile, string outputFile)
@@ -76,7 +76,7 @@ void Huffman::DecodeFile(string inputFile, string outputFile)
 	//decode the file 
 	this->readTreeBuildingData(inputFile); 
 	this->buildEncodingTable(); 
-	//this->decodeFile(inputFile, outputFile); 
+	this->decodeFile(inputFile, outputFile); 
 }
 
 //private methods 
@@ -92,12 +92,26 @@ void Huffman::openFile(string fileName)
 	ifstream inStream; 
 	inStream.open(fileName, ios::in); 
 
+	/*
+	if (!inStream.is_open())
+	{
+		cout << "error"; 
+		return; 
+	}
+	*/ 
+
+	for (int i = 0; i < 510; i++)
+	{
+		inStream.get(); 
+	}
+	
 	while (inStream >> noskipws >> c)
 	{
 		//cout << c << "\n";
 		numOfCharacters++;
 		temp = c;
 		symbolRep_weights[temp]++;
+		cout << c; 
 	}
 
 	numTimes++; 
@@ -479,7 +493,7 @@ void Huffman::writeTreeBuildingDataToFile(string outputFile)
 	int dataToWrite; 
 	int* pointerToData; 
 
-	ofstream outStream(outputFile, ios::out | ios::binary);
+ 	ofstream outStream(outputFile, ios::out | ios::binary);
 	//to write: 
 	//outStream.write((char*)&my_double, sizeof(double)); 
 
@@ -507,11 +521,11 @@ void Huffman::readFromFile(string fileName)
 
 	ifstream inStream; 
 	inStream.open(fileName, ios::in | ios::binary); 
-	char readByte; 
+	unsigned char readByte; 
 	unsigned int number; 
 
 	inStream.read((char*)&readByte, 1); 
-	number = (int)readByte; 
+	number = (unsigned int)readByte; 
 
 	cout << number; 
 }
@@ -524,7 +538,8 @@ void Huffman::readTreeBuildingData(string inputFile)
 	inStream.open(inputFile, ios::in); 
 
 	int numOfBytesRead = 0; 
-	int num1, num2; 
+	unsigned int num1, num2; 
+	unsigned char byte1, byte2; 
 
 	//build initial nodes first with the characters and 0 weights -> populate focus list 
 	createInitialNodes(); 
@@ -532,11 +547,19 @@ void Huffman::readTreeBuildingData(string inputFile)
 	while (numOfBytesRead < 510)
 	{
 		//read the first two numbers from the file 
-		inStream.read((char*)&num1, sizeof(int));
-		inStream.read((char*)&num2, sizeof(int)); 
+		inStream.read((char*)&byte1, 1);
+		inStream.read((char*)&byte2, 1); 
+
+		num1 = (unsigned int)byte1;
+		num2 = (unsigned int)byte2; 
 
 		//make a parent node for the read children 
 		createParentNode(num1, num2); 
+		
+		treeBuilder[treeBuilder_counter] = num1; 
+		treeBuilder[treeBuilder_counter++] = num2; 
+		treeBuilder_counter = treeBuilder_counter + 2; 
+
 		numOfBytesRead = numOfBytesRead + 2; 
 	}
 	rootNode = focus_list[0]; 
