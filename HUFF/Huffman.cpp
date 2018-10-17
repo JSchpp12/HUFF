@@ -41,7 +41,7 @@ void Huffman::EncodeFile(string inputFile, string OutputFile)
 	this->printBinaryTable(); 
 	this->writeTreeBuildingDataToFile(OutputFile);
 	this->write_incodedInput(inputFile, OutputFile);
-	//this->readFromFile(OutputFile); 
+	this->readFromFile(OutputFile); 
 }
 
 void Huffman::MakeTreeBuilder(string inputFile, string outputFile)
@@ -74,9 +74,12 @@ void Huffman::DecodeFile(string inputFile, string outputFile)
 {
 	//read encoded file for tree building data 
 	//decode the file 
-	this->readTreeBuildingData(inputFile); 
-	this->buildEncodingTable(); 
-	this->decodeFile(inputFile, outputFile); 
+	this->readFromFile(inputFile); 
+
+	//this->readTreeBuildingData(inputFile); 
+	//this->buildEncodingTable(); 
+	//this->printBinaryTable(); 
+	//this->decodeFile(inputFile, outputFile); 
 }
 
 //private methods 
@@ -111,7 +114,7 @@ void Huffman::openFile(string fileName)
 		numOfCharacters++;
 		temp = c;
 		symbolRep_weights[temp]++;
-		cout << c; 
+		//cout << c; 
 	}
 
 	numTimes++; 
@@ -534,8 +537,8 @@ void Huffman::readTreeBuildingData(string inputFile)
 {
 	//read the tree building data from the file
 	//build the tree from the data 
-	ifstream inStream; 
-	inStream.open(inputFile, ios::in); 
+	ifstream inStream;
+	inStream.open(inputFile, ios::in | ios::binary);
 
 	int numOfBytesRead = 0; 
 	unsigned int num1, num2; 
@@ -547,6 +550,7 @@ void Huffman::readTreeBuildingData(string inputFile)
 	while (numOfBytesRead < 510)
 	{
 		//read the first two numbers from the file 
+
 		inStream.read((char*)&byte1, 1);
 		inStream.read((char*)&byte2, 1); 
 
@@ -571,12 +575,29 @@ void Huffman::decodeFile(string inputFile, string outputFile)
 	ifstream inStream; 
 	inStream.open(inputFile, ios::in | ios::binary); 
 
-	char c; 
-	while (inStream.get(c))
+	//file should start with 510 bytes of tree building data 
+	int currentBit = 7; 
+	unsigned char c; 
+
+	//inStream.read((char*)&c, 1);
+
+
+	while (inStream >> noskipws >> c)
+	{
+		for (int i = 7; i >= 0; i++)
+		{
+			cout << ((c >> i) & 1);
+		}
+	}
+
+	/*
+	while (inStream.read((char*)&c, 1))
 	{
 		for (int i = 7; i >= 0; i++)
 		{
 			cout << ((c >> i) & 1); 
+			//if (currentBit)
 		}
 	}
+	*/
 }
