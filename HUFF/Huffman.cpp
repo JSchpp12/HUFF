@@ -624,7 +624,7 @@ unsigned char Huffman::readNextByte(ifstream & instream)
 	read_bitPos++; 
 	if (read_bitPos % 8 == 0)
 	{
-		if (instream.eof())
+		if (!instream.eof())
 		{
 			c = instream.get(); 
 		}
