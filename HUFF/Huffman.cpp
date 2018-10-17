@@ -34,7 +34,7 @@ void Huffman::EncodeFile(string inputFile, string OutputFile)
 	this->openFile(inputFile);
 	this->buildTree(); 
 	this->buildEncodingTable(); 
-	this->printBinaryTable(); 
+	//this->printBinaryTable(); 
 	this->writeTreeBuildingDataToFile(OutputFile);
 	this->write_incodedInput(inputFile, OutputFile);
 	this->readFromFile(OutputFile); 
@@ -138,11 +138,6 @@ void Huffman::buildTree()
 	int smallestFound2 = 0; 
 	while (focus_listCounter > 1)
 	{
-		if (focus_listCounter == 122)
-		{
-			cout << "Warning"; 
-		}
-		std::cout << focus_listCounter << " : " << " \n"; 
 		//need to find the two smallest values in the focus array
 
 		smallestFound = 1000000000; 
@@ -207,10 +202,7 @@ void Huffman::createParentNode(int index1, int index2)
 
 	node1 = focus_list[index1];
 	node2 = focus_list[index2];
-	if (node1->weight != 0)
-	{
-		cout << "warning"; 
-	}
+
 	newNode.leftChild = node1; 
 	newNode.rightChild = node2; 
 	weight1 = node1->weight; 
@@ -498,24 +490,24 @@ void Huffman::readTreeBuildingData(string inputFile)
 {
 	//read the tree building data from the file
 	//build the tree from the data 
-	ifstream inStream; 
-	inStream.open(inputFile, ios::in); 
+	ifstream inStream;
+	inStream.open(inputFile, ios::in);
 
-	int numOfBytesRead = 0; 
-	int num1, num2; 
+	int numOfBytesRead = 0;
+	int num1, num2;
 
 	//build initial nodes first with the characters and 0 weights -> populate focus list 
-	createInitialNodes(); 
+	createInitialNodes();
 
 	while (numOfBytesRead > 510)
 	{
 		//read the first two numbers from the file 
 		inStream.read((char*)&num1, 1);
-		inStream.read((char*)&num2, 1); 
+		inStream.read((char*)&num2, 1);
 
 		//make a parent node for the read children 
-		createParentNode(num1, num2); 
-		numOfBytesRead = numOfBytesRead + 2; 
+		createParentNode(num1, num2);
+		numOfBytesRead = numOfBytesRead + 2;
 	}
-	rootNode = focus_list[0]; 
-}
+	rootNode = focus_list[0];
+}	
