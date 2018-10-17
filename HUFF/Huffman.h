@@ -83,6 +83,6 @@ private:
 	void writeHandler(int input, ofstream & outFile);
 	void readTreeBuildingData(string inputFile); 
 	void decodeFile(string inputFile, string outputFile); 
-
+	unsigned char readNextByte(ifstream & inStream); 
 };
 
