@@ -12,6 +12,7 @@ Huffman::Huffman()
 		//symbolArray[i] = NULL; 
 	}
 
+	/*
 	powersOf2[0] = 1; 
 	powersOf2[1] = 2; 
 	powersOf2[2] = 4; 
@@ -21,6 +22,7 @@ Huffman::Huffman()
 	powersOf2[6] = 64; 
 	powersOf2[7] = 128; 
 	powersOf2[8] = 256; 
+	*/ 
 }
 
 
@@ -31,10 +33,12 @@ Huffman::~Huffman()
 void Huffman::EncodeFile(string inputFile, string OutputFile)
 {
 	//this will build a tree based on input file and write tree building data and compressed stream to outputFile
+	//create tree building data from file 
+
 	this->openFile(inputFile);
 	this->buildTree(); 
 	this->buildEncodingTable(); 
-	//this->printBinaryTable(); 
+	this->printBinaryTable(); 
 	this->writeTreeBuildingDataToFile(OutputFile);
 	this->write_incodedInput(inputFile, OutputFile);
 	this->readFromFile(OutputFile); 
@@ -66,6 +70,18 @@ void Huffman::DisplayHelp()
 
 }
 
+void Huffman::DecodeFile(string inputFile, string outputFile)
+{
+	//read encoded file for tree building data 
+	//decode the file 
+	this->readFromFile(inputFile); 
+
+	//this->readTreeBuildingData(inputFile); 
+	//this->buildEncodingTable(); 
+	//this->printBinaryTable(); 
+	//this->decodeFile(inputFile, outputFile); 
+}
+
 //private methods 
 
 void Huffman::openFile(string fileName)
@@ -79,12 +95,26 @@ void Huffman::openFile(string fileName)
 	ifstream inStream; 
 	inStream.open(fileName, ios::in); 
 
+	/*
+	if (!inStream.is_open())
+	{
+		cout << "error"; 
+		return; 
+	}
+	*/ 
+
+	for (int i = 0; i < 510; i++)
+	{
+		inStream.get(); 
+	}
+	
 	while (inStream >> noskipws >> c)
 	{
 		//cout << c << "\n";
 		numOfCharacters++;
 		temp = c;
 		symbolRep_weights[temp]++;
+		//cout << c; 
 	}
 
 	numTimes++; 
@@ -138,6 +168,11 @@ void Huffman::buildTree()
 	int smallestFound2 = 0; 
 	while (focus_listCounter > 1)
 	{
+		if (focus_listCounter == 122)
+		{
+			cout << "Warning"; 
+		}
+		std::cout << focus_listCounter << " : " << " \n"; 
 		//need to find the two smallest values in the focus array
 
 		smallestFound = 1000000000; 
@@ -202,7 +237,10 @@ void Huffman::createParentNode(int index1, int index2)
 
 	node1 = focus_list[index1];
 	node2 = focus_list[index2];
-
+	if (node1->weight != 0)
+	{
+		cout << "warning"; 
+	}
 	newNode.leftChild = node1; 
 	newNode.rightChild = node2; 
 	weight1 = node1->weight; 
@@ -458,16 +496,22 @@ void Huffman::writeTreeBuildingDataToFile(string outputFile)
 	int dataToWrite; 
 	int* pointerToData; 
 
-	ofstream outStream(outputFile, ios::out | ios::binary);
+ 	ofstream outStream(outputFile, ios::out | ios::binary);
 	//to write: 
 	//outStream.write((char*)&my_double, sizeof(double)); 
 
-	//need to write the first 250 bits as the tree building data 
+	//need to write the first 510 bits as the tree building data 
 	for (int n = 0; n < 510; n++)
 	{
 		//outStream << treeBuilder[n]; 
 		dataToWrite = treeBuilder[n]; 
-		outStream.write(reinterpret_cast<const char *>(&dataToWrite), 1);
+		cout << dataToWrite << "\n"; 
+		//convert the int into a char 
+		int a = dataToWrite; 
+
+		int e = dataToWrite & 0xff;
+
+		outStream.write(reinterpret_cast<const char *>(&e), 1);
 	}	
 
 	//close the file 
@@ -479,10 +523,13 @@ void Huffman::readFromFile(string fileName)
 	cout << "reading file \n"; 
 
 	ifstream inStream; 
-	inStream.open(fileName, ios::in); 
-	int number; 
+	inStream.open(fileName, ios::in | ios::binary); 
+	unsigned char readByte; 
+	unsigned int number; 
 
-	inStream.read((char*)&number, sizeof(number)); 
+	inStream.read((char*)&readByte, 1); 
+	number = (unsigned int)readByte; 
+
 	cout << number; 
 }
 
@@ -491,23 +538,66 @@ void Huffman::readTreeBuildingData(string inputFile)
 	//read the tree building data from the file
 	//build the tree from the data 
 	ifstream inStream;
-	inStream.open(inputFile, ios::in);
+	inStream.open(inputFile, ios::in | ios::binary);
 
-	int numOfBytesRead = 0;
-	int num1, num2;
+	int numOfBytesRead = 0; 
+	unsigned int num1, num2; 
+	unsigned char byte1, byte2; 
 
 	//build initial nodes first with the characters and 0 weights -> populate focus list 
-	createInitialNodes();
+	createInitialNodes(); 
 
-	while (numOfBytesRead > 510)
+	while (numOfBytesRead < 510)
 	{
 		//read the first two numbers from the file 
-		inStream.read((char*)&num1, 1);
-		inStream.read((char*)&num2, 1);
+
+		inStream.read((char*)&byte1, 1);
+		inStream.read((char*)&byte2, 1); 
+
+		num1 = (unsigned int)byte1;
+		num2 = (unsigned int)byte2; 
 
 		//make a parent node for the read children 
-		createParentNode(num1, num2);
-		numOfBytesRead = numOfBytesRead + 2;
+		createParentNode(num1, num2); 
+		
+		treeBuilder[treeBuilder_counter] = num1; 
+		treeBuilder[treeBuilder_counter++] = num2; 
+		treeBuilder_counter = treeBuilder_counter + 2; 
+
+		numOfBytesRead = numOfBytesRead + 2; 
 	}
-	rootNode = focus_list[0];
-}	
+	rootNode = focus_list[0]; 
+	//this->printBinaryTable(); 
+}
+
+void Huffman::decodeFile(string inputFile, string outputFile)
+{
+	ifstream inStream; 
+	inStream.open(inputFile, ios::in | ios::binary); 
+
+	//file should start with 510 bytes of tree building data 
+	int currentBit = 7; 
+	unsigned char c; 
+
+	//inStream.read((char*)&c, 1);
+
+
+	while (inStream >> noskipws >> c)
+	{
+		for (int i = 7; i >= 0; i++)
+		{
+			cout << ((c >> i) & 1);
+		}
+	}
+
+	/*
+	while (inStream.read((char*)&c, 1))
+	{
+		for (int i = 7; i >= 0; i++)
+		{
+			cout << ((c >> i) & 1); 
+			//if (currentBit)
+		}
+	}
+	*/
+}
