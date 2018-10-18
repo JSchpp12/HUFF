@@ -65,16 +65,11 @@ public:
 private: 
 	void openFile(string fileName); 
 	void buildTree(); 
-	void printArrays();
-	void printFOCUS(); 
 	void createInitialNodes(); 
 	void createParentNode(int index1, int index2); 
-	huff_node* findNextLowest(int lowestVal); 
 	void trimFocus(int empty_index); 
 	void buildEncodingTable();
-	void printBinaryTable(); 
 	string findPath(huff_node* leaf_node); 
-	void _traverse(huff_node * in_node); 
 	void write_incodedInput(string inputFile, string outputFile);
 	void writeTreeBuildingDataToFile(string outputFile); 
 	void readFromFile(string fileName); 

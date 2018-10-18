@@ -9,9 +9,7 @@ Huffman::Huffman()
 	for (int i = 0; i <= 256; i++)
 	{
 		symbolRep_weights[i] = 0; 
-		//symbolArray[i] = NULL; 
 	}
-
 
 	powersOf2[0] = 1; 
 	powersOf2[1] = 2; 
@@ -39,7 +37,6 @@ void Huffman::EncodeFile(string inputFile, string OutputFile)
 	this->buildEncodingTable(); 
 	this->writeTreeBuildingDataToFile(OutputFile);
 	this->write_incodedInput(inputFile, OutputFile);
-	//this->readFromFile("TEST.TXT.huf"); 
 }
 
 void Huffman::MakeTreeBuilder(string inputFile, string outputFile)
@@ -84,7 +81,6 @@ void Huffman::DecodeFile(string inputFile, string outputFile)
 
 	this->readTreeBuildingData(inputFile); 
 	this->buildEncodingTable(); 
-	this->printBinaryTable(); 
 	this->decodeFile(inputFile, outputFile); 
 }
 
@@ -103,15 +99,12 @@ void Huffman::openFile(string fileName)
 
 	while (inStream >> noskipws >> c)
 	{
-		//cout << c << "\n";
 		numOfCharacters++;
 		temp = c;
 		symbolRep_weights[temp]++;
-		//cout << c; 
 	}
 
 	numTimes++; 
-	printArrays(); 
 	createInitialNodes();
 }
 
@@ -141,19 +134,12 @@ void Huffman::createInitialNodes()
 
 void Huffman::buildTree()
 {
-	bool complete; 
-	int prevFound; 
 	int index1, index2; 
 	int maxFound = 0; 
 	int smallestFound = 0;
 	int smallestFound2 = 0; 
 	while (focus_listCounter > 1)
 	{
-		if (focus_listCounter == 122)
-		{
-			cout << "Warning"; 
-		}
-		std::cout << focus_listCounter << " : " << " \n"; 
 		//need to find the two smallest values in the focus array
 
 		smallestFound = 1000000000; 
@@ -193,21 +179,11 @@ void Huffman::buildTree()
 
 		//found the lowest stuff
 	}
-	printFOCUS(); 
 
 	//the last element in the focus list should be the root node
 	rootNode = focus_list[0]; 
 	rootNode->parent = nullptr;  
 } 
-
-void Huffman::printFOCUS() 
-{
-	std::cout << "PRINTING FOCUS \n"; 
-	for (int i = 0; i < focus_listCounter; i++)
-	{
-		std::cout << focus_list[i]->symbol << " : " << focus_list[i]->weight << "\n";
-	}
-}
 
 void Huffman::createParentNode(int index1, int index2)
 {
@@ -218,10 +194,6 @@ void Huffman::createParentNode(int index1, int index2)
 
 	node1 = focus_list[index1];
 	node2 = focus_list[index2];
-	if (node1->weight != 0)
-	{
-		cout << "warning"; 
-	}
 	//these are working 
 	newNode.leftChild = node1; 
 	newNode.rightChild = node2; 
@@ -248,7 +220,6 @@ void Huffman::createParentNode(int index1, int index2)
 void Huffman::trimFocus(int empty_index)
 {
 	//remove empty hole from focus array
-	huff_node* tempHolder; 
 	int a = empty_index ; 
 
 	while (a <= focus_listCounter)
@@ -306,19 +277,6 @@ void Huffman::foundBinaryPath(string binaryPath)
 	binaryArrayCounter++; 
 }
 
-void Huffman::printBinaryTable()
-{
-	unsigned char tempConverter; 
-
-	std::cout << "Printing binary table \n"; 
-	for (int i = 0; i < 256; i++)
-	{
-		tempConverter = i; 
-		//cout << symbolArray[i] << " : " << binaryRepList[i] << "\n"; 
-		std::cout << tempConverter << " : " << binaryRepList[i] << "\n"; 
-	}
-}
-
 void Huffman::write_incodedInput(string inputFile, string outputFile)
 {
 	//ONLY CALLED AFTER ENCODING TABLE IS CREATED---
@@ -326,14 +284,8 @@ void Huffman::write_incodedInput(string inputFile, string outputFile)
 	//need padding bits if compiled  message is not a multiple of 8
 	int numOfBytesWritten = 0;
 
-	int index; 
 	unsigned char c, temp; 
 	int intOfChar;
-	int binaryRepresentative;
-	int calculatedPowerOf2;
-
-	//use this to count the number of ints on stack 
-	int lengthOfString;
 
 	string binaryString;
 
@@ -347,7 +299,6 @@ void Huffman::write_incodedInput(string inputFile, string outputFile)
 
 	while (inStream >> noskipws >> c)
 	{
-		//cout << c << " : " << binaryRepList[c] << "\n";
 		intOfChar = c;
 		binaryString = binaryRepList[intOfChar]; 
 
@@ -365,6 +316,10 @@ void Huffman::write_incodedInput(string inputFile, string outputFile)
 		}
 	}
 	writeHandler(2, outStream); 
+
+	//close the file 
+	inStream.close(); 
+	outStream.close(); 
 }
 
 void Huffman::writeHandler(int input, ofstream &outStream)
@@ -385,7 +340,7 @@ void Huffman::writeHandler(int input, ofstream &outStream)
 		position++; 
 		if ((position % 8) == 0)
 		{
-			//cout << "writing block " << block << " \n";
+
 			outStream.put(block);
 			block = '\0';
 			position = 0; 
@@ -399,11 +354,9 @@ void Huffman::writeHandler(int input, ofstream &outStream)
 		position++; 
 		if ((position%8) == 0)
 		{
-			//cout << "writing block " << block << " \n"; 
 			outStream.put(block); 
 			block = '\0'; 
 			position = 0; 
-
 		}
 	}
 	else
@@ -433,11 +386,9 @@ void Huffman::writeHandler(int input, ofstream &outStream)
 					}
 				}
 				outStream.put(block); 
-				//outStream.write((const char*)&block, 1); 
 			}
 		}
 		outStream.put(block); 
-		//outStream.write((const char*)&block, 1);
 	}
 }
 
@@ -478,9 +429,7 @@ string Huffman::findPaddingBits(int numBitsNeeded)
 
 void Huffman::writeTreeBuildingDataToFile(string outputFile)
 {
-	char temp; 
 	int dataToWrite; 
-	int* pointerToData; 
 
  	ofstream outStream(outputFile, ios::out | ios::binary);
 	//to write: 
@@ -491,7 +440,7 @@ void Huffman::writeTreeBuildingDataToFile(string outputFile)
 	{
 		//outStream << treeBuilder[n]; 
 		dataToWrite = treeBuilder[n]; 
-		cout << dataToWrite << "\n"; 
+
 		//convert the int into a char 
 		int a = dataToWrite; 
 
@@ -506,7 +455,6 @@ void Huffman::writeTreeBuildingDataToFile(string outputFile)
 
 void Huffman::readFromFile(string fileName)
 {
-	cout << "reading file \n"; 
 
 	ifstream inStream; 
 
@@ -514,13 +462,12 @@ void Huffman::readFromFile(string fileName)
 	if (!inStream.is_open())
 	{
 		cout << "unable to open \n"; 
+		exit(1); 
 	}
 	unsigned char readByte; 
 	unsigned int number; 
 	inStream.read((char*)&readByte, 1); 
 	number = (unsigned int)readByte; 
-
-	cout << number; 
 }
 
 void Huffman::readTreeBuildingData(string inputFile)
@@ -560,13 +507,12 @@ void Huffman::readTreeBuildingData(string inputFile)
 	rootNode = focus_list[0];
 	rootNode->parent = nullptr; 
 
-	//this->printBinaryTable(); 
+	//close the file
+	inStream.close(); 
 }
 
 void Huffman::decodeFile(string inputFile, string outputFile)
 {
-	cout << outputFile << "\n"; 
-
 	ifstream inStream; 
 	inStream.open(inputFile, ios::in | ios::binary); 
 
@@ -579,10 +525,7 @@ void Huffman::decodeFile(string inputFile, string outputFile)
 	//file should start with 510 bytes of tree building data 
 	int currentBit = 7;
 	int counter = 0; 
-	unsigned char c; 
 	string returned; 
-
-	//inStream.read((char*)&c, 1);
 
 	for (int j = 0; j < 510; j++)
 	{
@@ -616,17 +559,17 @@ void Huffman::decodeFile(string inputFile, string outputFile)
 			}
 		}
 	}
+
+	//close the files 
+	inStream.close(); 
+	outStream.close(); 
 }
 
 string Huffman::readNextByte(ifstream & instream)
 {
 	unsigned char readByte; 
-	unsigned char tempHolder; 
 	static int read_bitPos = 0; 
 	unsigned int result; 
-
-	//static unsigned char c = instream.get(); 
-	unsigned char bitArray[8]; 
 
 	string binaryString = ""; 
 
@@ -647,6 +590,5 @@ string Huffman::readNextByte(ifstream & instream)
 			binaryString = binaryString + "0"; 
 		}
 	}
-	//std::cout << binaryString << "\n"; 
 	return binaryString;
 }
