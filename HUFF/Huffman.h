@@ -1,3 +1,7 @@
+//Jacob Schaupp 
+//10/17/2018
+//EECS 2510 Non-Linear Data Structures 
+
 #pragma once
 #include <string>
 #include <iostream>
