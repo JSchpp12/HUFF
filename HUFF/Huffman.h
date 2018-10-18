@@ -24,7 +24,7 @@ public:
 	};
 	int nodeStorageCounter = 0; 
 	int numOfZeroes = 0; 
-	int powersOf2[8]; 
+	unsigned int powersOf2[8]; 
 
 	huff_node* rootNode; 
 	huff_node nodeStorage[2000];
@@ -83,6 +83,6 @@ private:
 	void writeHandler(int input, ofstream & outFile);
 	void readTreeBuildingData(string inputFile); 
 	void decodeFile(string inputFile, string outputFile); 
-	unsigned char readNextByte(ifstream & inStream); 
+	string readNextByte(ifstream & inStream); 
 };
 

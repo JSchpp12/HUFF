@@ -12,7 +12,7 @@ Huffman::Huffman()
 		//symbolArray[i] = NULL; 
 	}
 
-	/*
+
 	powersOf2[0] = 1; 
 	powersOf2[1] = 2; 
 	powersOf2[2] = 4; 
@@ -22,7 +22,6 @@ Huffman::Huffman()
 	powersOf2[6] = 64; 
 	powersOf2[7] = 128; 
 	powersOf2[8] = 256; 
-	*/ 
 }
 
 
@@ -38,10 +37,9 @@ void Huffman::EncodeFile(string inputFile, string OutputFile)
 	this->openFile(inputFile);
 	this->buildTree(); 
 	this->buildEncodingTable(); 
-	this->printBinaryTable(); 
 	this->writeTreeBuildingDataToFile(OutputFile);
 	this->write_incodedInput(inputFile, OutputFile);
-	this->readFromFile("TEST.TXT.huf"); 
+	//this->readFromFile("TEST.TXT.huf"); 
 }
 
 void Huffman::MakeTreeBuilder(string inputFile, string outputFile)
@@ -62,11 +60,19 @@ void Huffman::EncodeFileWithTree(string treeBuildingFile, string targetFile, str
 	this->readTreeBuildingData(treeBuildingFile); 
 	this->writeTreeBuildingDataToFile(outputFile); 
 	this->write_incodedInput(targetFile, outputFile);
-
 }
 
 void Huffman::DisplayHelp()
 {
+	cout << "Welcome... \n"; 
+	cout << "To use this program, give an argument type followed by 1 to 3 file names \n "; 
+	cout << "HUFF [argument] [fileName1] [fileName2] [fileName3] \n"; 
+	cout << "Proper arguments are... \n";
+	cout << "Available arguments: \n"; 
+	cout << "-e -- Encode Directly From Input File (2 filenames) \n"; 
+	cout << "-d -- Decode input file : decode file1 into file2 (2 filenames) \n"; 
+	cout << "-t -- Create a tree building file (1 required - 1 optional fileName) \n"; 
+	cout << "-et -- Encode file2 with tree building data from file1 (2 required - 1 optional filnames) \n"; 
 
 }
 
@@ -93,21 +99,8 @@ void Huffman::openFile(string fileName)
 	int numTimes = 0; 
 	//create the stream and open the file in read mode
 	ifstream inStream; 
-	inStream.open(fileName, ios::in); 
+	inStream.open(fileName, ios::in | ios::binary); 
 
-	/*
-	if (!inStream.is_open())
-	{
-		cout << "error"; 
-		return; 
-	}
-	*/ 
-
-	for (int i = 0; i < 510; i++)
-	{
-		inStream.get(); 
-	}
-	
 	while (inStream >> noskipws >> c)
 	{
 		//cout << c << "\n";
@@ -120,18 +113,6 @@ void Huffman::openFile(string fileName)
 	numTimes++; 
 	printArrays(); 
 	createInitialNodes();
-}
-
-void Huffman::printArrays()
-{
-	char temp; 
-
-	for (int i = 0; i <= 256; i++)
-	{
-		temp = i; 
-		std::cout << i << " : " << symbolRep_weights[i] << "\n"; 
-		//cout << symbolArray[i] << " : " << weightArray[i] << "\n"; 
-	}
 }
 
 void Huffman::createInitialNodes()
@@ -241,6 +222,7 @@ void Huffman::createParentNode(int index1, int index2)
 	{
 		cout << "warning"; 
 	}
+	//these are working 
 	newNode.leftChild = node1; 
 	newNode.rightChild = node2; 
 	weight1 = node1->weight; 
@@ -313,6 +295,8 @@ string Huffman::findPath(huff_node* leafNode)
 		}
 		currentNode = temp; 
 	}
+
+	std::reverse(constructedPath.begin(), constructedPath.end());
 	return constructedPath; 
 }
 
@@ -359,7 +343,7 @@ void Huffman::write_incodedInput(string inputFile, string outputFile)
 		
 	//open the output file as a binary output 
 	ofstream outStream;
-	outStream.open(outputFile, ios::out | ios::app | ios::binary);
+	outStream.open(outputFile, ios::app | ios::binary);
 
 	while (inStream >> noskipws >> c)
 	{
@@ -449,9 +433,11 @@ void Huffman::writeHandler(int input, ofstream &outStream)
 					}
 				}
 				outStream.put(block); 
+				//outStream.write((const char*)&block, 1); 
 			}
 		}
 		outStream.put(block); 
+		//outStream.write((const char*)&block, 1);
 	}
 }
 
@@ -523,9 +509,12 @@ void Huffman::readFromFile(string fileName)
 	cout << "reading file \n"; 
 
 	ifstream inStream; 
-	inStream.clear(); 
 
 	inStream.open(fileName, ios::in | ios::binary); 
+	if (!inStream.is_open())
+	{
+		cout << "unable to open \n"; 
+	}
 	unsigned char readByte; 
 	unsigned int number; 
 	inStream.read((char*)&readByte, 1); 
@@ -548,7 +537,7 @@ void Huffman::readTreeBuildingData(string inputFile)
 	//build initial nodes first with the characters and 0 weights -> populate focus list 
 	createInitialNodes(); 
 
-	while (numOfBytesRead < 510)
+	while (numOfBytesRead <	510)
 	{
 		//read the first two numbers from the file 
 
@@ -576,14 +565,22 @@ void Huffman::readTreeBuildingData(string inputFile)
 
 void Huffman::decodeFile(string inputFile, string outputFile)
 {
+	cout << outputFile << "\n"; 
+
 	ifstream inStream; 
 	inStream.open(inputFile, ios::in | ios::binary); 
+
+	ofstream outStream; 
+	outStream.open(outputFile, ios::out); 
+
+	huff_node* currentNode; 
+	currentNode = rootNode; 
 
 	//file should start with 510 bytes of tree building data 
 	int currentBit = 7;
 	int counter = 0; 
 	unsigned char c; 
-	unsigned char returned; 
+	string returned; 
 
 	//inStream.read((char*)&c, 1);
 
@@ -592,47 +589,64 @@ void Huffman::decodeFile(string inputFile, string outputFile)
 		inStream.get(); 
 	}
 
-	while (counter < 25)
+	while (!inStream.eof())
 	{
 		returned = readNextByte(inStream); 
-		if (returned == 1)
-		{
-			cout << 1; 
-		} 
-	}
 
-	/*
-	while (inStream.read((char*)&c, 1))
-	{
-		for (int i = 7; i >= 0; i++)
+		for (int i = 0; i < 8; i++)
 		{
-			cout << ((c >> i) & 1); 
-			//if (currentBit)
+			//check if the current node is a leaf node 
+
+			//if ((currentNode->leftChild == nullptr) && (currentNode->rightChild == nullptr))
+			if (currentNode->symbol != -52)
+			{
+				char temp = currentNode->symbol;
+				outStream.write(reinterpret_cast<const char *>(&temp), sizeof(char));
+				currentNode = rootNode; 
+			}
+
+			//continue reading the file 
+			if (returned[i] == '0')
+			{
+				currentNode = currentNode->leftChild; 
+			}
+			else
+			{
+				currentNode = currentNode->rightChild; 	
+			}
 		}
 	}
-	*/
 }
 
-unsigned char Huffman::readNextByte(ifstream & instream)
+string Huffman::readNextByte(ifstream & instream)
 {
 	unsigned char readByte; 
 	unsigned char tempHolder; 
 	static int read_bitPos = 0; 
-	static unsigned char c = instream.get(); 
+	unsigned int result; 
 
-	tempHolder = (c >> (7 - read_bitPos))%2;
-	read_bitPos++; 
-	if (read_bitPos % 8 == 0)
+	//static unsigned char c = instream.get(); 
+	unsigned char bitArray[8]; 
+
+	string binaryString = ""; 
+
+	instream.read((char*)&readByte, 1);
+
+	for (int i = 7; i >=0 ; i--)
 	{
-		if (!instream.eof())
+		result = 0; 
+		result = readByte & powersOf2[i]; 
+
+		if (result == powersOf2[i])
 		{
-			c = instream.get(); 
+			binaryString = binaryString + "1"; 
+
 		}
 		else
 		{
-			tempHolder = 2; 
+			binaryString = binaryString + "0"; 
 		}
-		return tempHolder; 
 	}
-
+	//std::cout << binaryString << "\n"; 
+	return binaryString;
 }
